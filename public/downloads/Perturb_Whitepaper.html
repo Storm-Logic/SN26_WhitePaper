@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Perturb — Whitepaper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset ────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  /* Black & white palette */
+  --bg:       #ffffff;
+  --bg2:      #fafafa;
+  --bg3:      #f4f4f4;
+  --border:   #d4d4d4;
+  --border2:  #e8e8e8;
+  --ink:      #0a0a0a;
+  --ink2:     #3a3a3a;
+  --ink3:     #6b6b6b;
+  --ink4:     #9b9b9b;
+  --accent:   #0a0a0a;   /* black is the accent */
+  --code-bg:  #0a0a0a;
+  --code-fg:  #e8e8e8;
+  --nav-w:    252px;
+  --content-w:740px;
+  --r:        4px;
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:1.05rem;
+  line-height:1.8;
+  min-height:100vh;
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.layout{display:flex;min-height:100vh}
+
+/* ── Sidebar ─────────────────────────────────────────────────── */
+nav.sidebar{
+  position:fixed;top:0;left:0;
+  width:var(--nav-w);height:100vh;
+  background:var(--bg);
+  border-right:1px solid var(--border);
+  overflow-y:auto;padding:2rem 0 3rem;
+  display:flex;flex-direction:column;
+  z-index:100;
+  scrollbar-width:thin;scrollbar-color:var(--border) transparent;
+}
+.nav-brand{padding:0 1.5rem 1.25rem;border-bottom:1px solid var(--border);margin-bottom:0.75rem}
+.nav-brand .logo{
+  font-family:'Space Mono',monospace;font-size:1.2rem;font-weight:700;
+  color:var(--ink);letter-spacing:-0.02em;display:block;
+}
+.nav-brand .sub{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--ink4);letter-spacing:0.08em;text-transform:uppercase;margin-top:0.15rem}
+.nav-label{font-family:'Space Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink4);padding:0.75rem 1.5rem 0.25rem}
+nav.sidebar a{
+  display:flex;align-items:baseline;gap:0.5rem;
+  padding:0.25rem 1.5rem;
+  color:var(--ink3);text-decoration:none;
+  font-family:'Space Mono',monospace;font-size:0.72rem;line-height:1.5;
+  transition:color 0.12s,background 0.12s;
+  border-left:2px solid transparent;
+}
+nav.sidebar a .num{font-size:0.65rem;color:var(--ink4);flex-shrink:0;transition:color 0.12s}
+nav.sidebar a:hover,nav.sidebar a.active{
+  color:var(--ink);background:var(--bg3);border-left-color:var(--ink);
+}
+nav.sidebar a:hover .num,nav.sidebar a.active .num{color:var(--ink2)}
+nav.sidebar a.sub{padding-left:2.6rem;font-size:0.68rem;color:var(--ink4)}
+nav.sidebar a.sub:hover,nav.sidebar a.sub.active{color:var(--ink2)}
+
+/* ── Main ────────────────────────────────────────────────────── */
+main{margin-left:var(--nav-w);flex:1;padding:0 3rem 8rem}
+.content{max-width:var(--content-w);margin:0 auto;padding-top:5rem}
+
+/* ── Hero ────────────────────────────────────────────────────── */
+.hero{padding:5rem 0 3.5rem;border-bottom:2px solid var(--ink);margin-bottom:4rem}
+.hero-kicker{
+  font-family:'Space Mono',monospace;font-size:0.68rem;
+  text-transform:uppercase;letter-spacing:0.16em;color:var(--ink3);
+  margin-bottom:1.25rem;
+}
+h1.hero-title{
+  font-family:'Space Mono',monospace;font-size:3.6rem;font-weight:700;
+  color:var(--ink);letter-spacing:-0.04em;line-height:1.0;margin-bottom:1rem;
+}
+.hero-tagline{font-size:1.2rem;color:var(--ink2);font-weight:400;margin-bottom:2rem;line-height:1.5}
+.hero-meta{display:flex;gap:3rem;flex-wrap:wrap}
+.hero-meta-item .label{
+  font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--ink4);display:block;
+}
+.hero-meta-item .value{
+  font-family:'Space Mono',monospace;font-size:0.82rem;color:var(--ink2);
+}
+
+/* ── Stat Grid ───────────────────────────────────────────────── */
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:2rem 0;border:1px solid var(--border)}
+.stat-card{
+  padding:1.25rem 1rem;
+  border-right:1px solid var(--border);
+}
+.stat-card:last-child{border-right:none}
+.stat-card .num{
+  font-family:'Space Mono',monospace;font-size:1.5rem;font-weight:700;
+  color:var(--ink);display:block;margin-bottom:0.35rem;line-height:1;
+}
+.stat-card .desc{font-family:'Space Mono',monospace;font-size:0.68rem;color:var(--ink3);line-height:1.4}
+
+/* ── Section ─────────────────────────────────────────────────── */
+.section{padding-top:1rem;margin-bottom:4rem}
+.section-header{
+  display:flex;align-items:baseline;gap:1rem;
+  border-bottom:1px solid var(--border);
+  padding-bottom:0.6rem;margin-bottom:1.75rem;
+}
+.section-num{
+  font-family:'Space Mono',monospace;font-size:0.68rem;
+  color:var(--ink4);flex-shrink:0;
+}
+h2.section-title{
+  font-family:'Space Mono',monospace;font-size:1.15rem;font-weight:700;
+  color:var(--ink);letter-spacing:-0.01em;
+}
+h3.sub-title{
+  font-family:'Space Mono',monospace;font-size:0.78rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--ink2);margin:2.25rem 0 0.85rem;
+  padding-bottom:0.35rem;border-bottom:1px solid var(--border2);
+}
+h4.sub-sub{font-family:'Space Mono',monospace;font-size:0.82rem;font-weight:700;color:var(--ink);margin:1.25rem 0 0.4rem}
+
+/* ── Body text ───────────────────────────────────────────────── */
+p{color:var(--ink2);margin-bottom:1rem}
+p:last-child{margin-bottom:0}
+strong{color:var(--ink);font-weight:600}
+
+/* ── Abstract ────────────────────────────────────────────────── */
+.abstract{
+  border-left:3px solid var(--ink);
+  padding:1.25rem 1.5rem;
+  background:var(--bg2);
+  margin:1.5rem 0;
+}
+.abstract p{font-size:1rem}
+
+/* ── Side cards ──────────────────────────────────────────────── */
+.card-list{display:flex;flex-direction:column;gap:0;margin:1rem 0;border:1px solid var(--border)}
+.side-card{padding:1rem 1.25rem;border-bottom:1px solid var(--border);border-left:3px solid var(--ink)}
+.side-card:last-child{border-bottom:none}
+.side-card p{margin:0;font-size:0.95rem}
+
+/* ── Callout ─────────────────────────────────────────────────── */
+.callout{
+  border:1px solid var(--ink);
+  padding:0.9rem 1.25rem;margin:1.5rem 0;
+  display:flex;gap:0.75rem;align-items:flex-start;
+  background:var(--bg3);
+}
+.callout .icon{flex-shrink:0;font-size:0.9rem;margin-top:0.15rem}
+.callout p{color:var(--ink);font-size:0.92rem;font-weight:500;margin:0;font-family:'Space Mono',monospace}
+
+/* ── Code ────────────────────────────────────────────────────── */
+.code-label{
+  font-family:'Space Mono',monospace;font-size:0.62rem;text-transform:uppercase;
+  letter-spacing:0.1em;color:var(--ink4);display:block;margin-bottom:0.4rem;
+}
+pre{
+  background:var(--code-bg);border:none;
+  padding:1.25rem 1.5rem;overflow-x:auto;margin:0.75rem 0;
+}
+pre code{
+  font-family:'DM Mono',monospace;font-size:0.78rem;
+  color:var(--code-fg);line-height:1.7;
+}
+.inline-code{
+  font-family:'DM Mono',monospace;font-size:0.8em;
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--ink2);padding:0.05em 0.35em;
+}
+
+/* ── Formula ─────────────────────────────────────────────────── */
+.formula-group{display:flex;flex-direction:column;gap:0;margin:1rem 0;border:1px solid var(--border)}
+.formula{
+  background:var(--bg2);
+  padding:0.9rem 1.25rem;
+  border-bottom:1px solid var(--border);
+  font-family:'DM Mono',monospace;font-size:0.82rem;color:var(--ink);
+}
+.formula:last-child{border-bottom:none}
+.formula .fl{
+  display:block;font-family:'Space Mono',monospace;font-size:0.6rem;
+  text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4);margin-bottom:0.35rem;
+}
+.formula sub{font-size:0.72em}
+
+/* ── Tables ──────────────────────────────────────────────────── */
+.table-wrap{overflow-x:auto;margin:1rem 0;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--ink)}
+thead th{
+  padding:0.65rem 0.9rem;text-align:left;
+  font-family:'Space Mono',monospace;font-size:0.68rem;font-weight:700;
+  color:var(--bg);letter-spacing:0.06em;text-transform:uppercase;
+}
+tbody tr{border-bottom:1px solid var(--border2)}
+tbody tr:last-child{border-bottom:none}
+tbody tr:nth-child(even){background:var(--bg2)}
+tbody td{padding:0.6rem 0.9rem;font-size:0.88rem;color:var(--ink2);vertical-align:top}
+td.mono{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--ink)}
+td.hl{color:var(--ink);font-weight:600}
+td.pass{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--ink)}
+td.fail{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--ink3)}
+.rank-1 td{font-weight:700;color:var(--ink)!important}
+.rank-2 td{font-weight:600;color:var(--ink2)!important}
+.rank-3 td{color:var(--ink2)!important}
+
+/* ── Tags ────────────────────────────────────────────────────── */
+.tag{
+  display:inline-block;font-family:'Space Mono',monospace;
+  font-size:0.62rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.2rem 0.55rem;margin-top:0.5rem;
+  border:1px solid var(--ink);color:var(--ink);
+}
+
+/* ── Pipeline diagram ────────────────────────────────────────── */
+.pipeline-wrap{
+  background:var(--bg2);border:1px solid var(--border);
+  padding:2rem 1.5rem;margin:1.5rem 0;overflow-x:auto;
+}
+.pipeline-svg{width:100%;max-width:720px;display:block;margin:0 auto;height:auto}
+
+/* ── Flow timeline ───────────────────────────────────────────── */
+.tl{display:flex;flex-direction:column;gap:0;margin:1rem 0}
+.tl-item{display:flex;gap:1.25rem;padding:1rem 0;border-bottom:1px solid var(--border2)}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--ink);flex-shrink:0;margin-top:0.55rem}
+.tl-body .tl-phase{font-family:'Space Mono',monospace;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4)}
+.tl-title{font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;color:var(--ink);margin:0.1rem 0 0.3rem}
+.tl-desc{font-size:0.92rem;color:var(--ink2);line-height:1.65}
+.tl-target{
+  display:inline-block;margin-top:0.4rem;
+  font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--ink3);
+  border-bottom:1px dashed var(--border);
+}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+footer{margin-top:5rem;padding:2rem 0 1.5rem;border-top:2px solid var(--ink);text-align:center}
+footer .fb{font-family:'Space Mono',monospace;font-size:1.25rem;font-weight:700;color:var(--ink);margin-bottom:0.3rem}
+footer .fd{font-family:'Space Mono',monospace;font-size:0.75rem;color:var(--ink3);margin-bottom:0.75rem}
+footer .disc{font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--ink4);max-width:480px;margin:1rem auto 0;line-height:1.6}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:860px){
+  nav.sidebar{display:none}
+  main{margin-left:0;padding:0 1.5rem 4rem}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  h1.hero-title{font-size:2.4rem}
+}
+@media(max-width:480px){.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="nav-brand">
+    <span class="logo">Perturb</span>
+    <span class="sub">Whitepaper v1.0</span>
+  </div>
+  <div class="nav-label">Contents</div>
+  <a href="#abstract"><span class="num">00/</span>Abstract</a>
+  <a href="#s1"><span class="num">01/</span>Executive Summary</a>
+  <a href="#s2"><span class="num">02/</span>The Problem</a>
+  <a href="#s2-1" class="sub">AI Models Are Brittle</a>
+  <a href="#s2-2" class="sub">Market Opportunity</a>
+  <a href="#s2-3" class="sub">Existing Solutions</a>
+  <a href="#s3"><span class="num">03/</span>Introducing Perturb</a>
+  <a href="#s3-1" class="sub">What Perturb Does</a>
+  <a href="#s3-2" class="sub">Why Bittensor</a>
+  <a href="#s4"><span class="num">04/</span>Technical Architecture</a>
+  <a href="#s4-1" class="sub">System Overview</a>
+  <a href="#s4-2" class="sub">Challenge Pipeline</a>
+  <a href="#s4-3" class="sub">Deterministic Verification</a>
+  <a href="#s4-4" class="sub">Challenge Format</a>
+  <a href="#s4-5" class="sub">Miner Response</a>
+  <a href="#s4-6" class="sub">Per-Challenge Scoring</a>
+  <a href="#s4-7" class="sub">On-Chain Weights</a>
+  <a href="#s4-8" class="sub">Current Model</a>
+  <a href="#s4-9" class="sub">Current Repo Scope</a>
+  <a href="#s5"><span class="num">05/</span>Revenue Model</a>
+  <a href="#s5-1" class="sub">Adversarial Dataset</a>
+  <a href="#s5-2" class="sub">Robustness Testing</a>
+  <a href="#s6"><span class="num">06/</span>Go-To-Market</a>
+  <a href="#s6-1" class="sub">Target Customers</a>
+  <a href="#s6-2" class="sub">Phased Launch</a>
+  <a href="#s6-3" class="sub">Competitive Moat</a>
+  <a href="#s7"><span class="num">07/</span>Market Analysis</a>
+  <a href="#s8"><span class="num">08/</span>Conclusion</a>
+</nav>
+
+<!-- Main -->
+<main>
+<div class="content">
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-kicker">Bittensor Subnet · Adversarial Robustness</div>
+  <h1 class="hero-title">Perturb</h1>
+  <p class="hero-tagline">Decentralized Adversarial Robustness Network — built on Bittensor.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item"><span class="label">Version</span><span class="value">1.0</span></div>
+    <div class="hero-meta-item"><span class="label">Date</span><span class="value">April 2026</span></div>
+    <div class="hero-meta-item"><span class="label">Domain</span><span class="value">perturbai.io</span></div>
+  </div>
+</section>
+
+<!-- 00/ Abstract -->
+<section class="section" id="abstract">
+  <div class="section-header">
+    <span class="section-num">00/</span>
+    <h2 class="section-title">Abstract</h2>
+  </div>
+  <div class="abstract">
+    <p>We propose a decentralized adversarial robustness network built on Bittensor. Miners compete to find adversarial examples — imperceptible input perturbations that cause state-of-the-art image classifiers to fail. Validators construct challenges from the full ImageNet-100 train split, run a fixed EfficientNetV2-L classifier, verify responses with deterministic model and image-quality checks, then score miners from rolling histories. On-chain weights are assigned periodically to eligible miners.</p>
+    <p>The result is the world's first financially incentivized, continuously improving adversarial testing infrastructure. The network produces two commercially valuable outputs — an adversarial training dataset and on-chain model robustness certificates — addressing a $1.43B market growing at 26.1% annually.</p>
+  </div>
+</section>
+
+<!-- 01/ Executive Summary -->
+<section class="section" id="s1">
+  <div class="section-header">
+    <span class="section-num">01/</span>
+    <h2 class="section-title">Executive Summary</h2>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card"><span class="num">$11.6B</span><span class="desc">AI Red Teaming Market by 2033</span></div>
+    <div class="stat-card"><span class="num">26.1%</span><span class="desc">Annual Market Growth Rate (CAGR)</span></div>
+    <div class="stat-card"><span class="num">€30M</span><span class="desc">Max EU AI Act Non-Compliance Fine</span></div>
+    <div class="stat-card"><span class="num">~126K</span><span class="desc">ImageNet-100 train images</span></div>
+  </div>
+  <p>Every AI model deployed in production carries a hidden vulnerability: adversarial examples. An imperceptible change to a single image can cause a medical imaging model to misclassify a tumor, an autonomous vehicle to ignore a stop sign, or a fraud detection system to approve a fraudulent transaction. The tooling to systematically discover these vulnerabilities before deployment is fragmented, expensive, and — critically — <strong>static. It does not improve over time.</strong></p>
+  <p><strong>Perturb changes this.</strong> Built on Bittensor, Perturb is a decentralized adversarial robustness network where miners compete to find adversarial examples — inputs that fool AI models while remaining imperceptible to humans. Every challenge and response is verified by validator-side model inference, perturbation constraints, SSIM, and PSNR. Every valid attack is scored with mathematical precision. The network gets stronger every single day.</p>
+  <p>The result is the world's first financially incentivized, continuously improving adversarial testing infrastructure — something no centralized service can replicate.</p>
+</section>
+
+<!-- 02/ The Problem -->
+<section class="section" id="s2">
+  <div class="section-header">
+    <span class="section-num">02/</span>
+    <h2 class="section-title">The Problem We Solve</h2>
+  </div>
+
+  <h3 class="sub-title" id="s2-1">AI Models Are Brittle</h3>
+  <p>Modern AI models achieve remarkable accuracy on clean test sets, yet remain vulnerable to adversarial perturbations — mathematically crafted modifications to input data that are imperceptible to humans but cause models to fail completely. In the current SN26 implementation, validators use EfficientNetV2-L on ImageNet-100 challenge images and reward miners that can change the model prediction while satisfying strict perturbation and perceptual-quality constraints.</p>
+  <p>This is not a theoretical concern. Adversarial attacks have been demonstrated against:</p>
+  <div class="card-list">
+    <div class="side-card"><p>Medical imaging classifiers used for cancer detection and diagnostic triage</p></div>
+    <div class="side-card"><p>Facial recognition systems controlling physical access to secure facilities</p></div>
+    <div class="side-card"><p>Autonomous vehicle perception systems for object and sign recognition</p></div>
+    <div class="side-card"><p>Content moderation models protecting platforms from harmful material</p></div>
+    <div class="side-card"><p>Financial fraud detection systems processing millions of transactions daily</p></div>
+  </div>
+
+  <h3 class="sub-title" id="s2-2">The Market Opportunity</h3>
+  <p>Three powerful forces are converging to create an urgent, large, and underserved market for adversarial robustness testing:</p>
+  <div class="card-list">
+    <div class="side-card"><p><strong>Regulatory Mandates:</strong> The EU AI Act classifies AI systems in healthcare, autonomous vehicles, critical infrastructure, and hiring as high-risk, requiring mandatory conformity assessments including robustness testing before deployment. Non-compliance carries fines of up to €30 million or 6% of global annual revenue.</p></div>
+    <div class="side-card"><p><strong>Enterprise Procurement Requirements:</strong> Large enterprises increasingly require AI vendors to demonstrate robustness certifications before purchase. A verified robustness certificate is becoming table stakes for selling AI products into regulated industries.</p></div>
+    <div class="side-card"><p><strong>AI Proliferation:</strong> As AI moves from research to production across every industry, the attack surface grows exponentially. Every new model deployment is a new vulnerability. Organizations deploying AI without systematic adversarial testing are accepting unknown, unquantified risk.</p></div>
+  </div>
+
+  <h3 class="sub-title" id="s2-3">Why Existing Solutions Fall Short</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Solution</th><th>Type</th><th>Critical Limitation</th></tr></thead>
+      <tbody>
+        <tr><td class="hl">IBM ART / Foolbox / CleverHans</td><td>Open-source libraries</td><td>Requires deep ML expertise. No managed service. Never improves.</td></tr>
+        <tr><td class="hl">Manual red teaming firms</td><td>Human service</td><td>$50K–$200K per engagement. Weeks to complete. Cannot scale.</td></tr>
+        <tr><td class="hl">Internal security teams</td><td>In-house</td><td>Most organizations lack adversarial ML expertise.</td></tr>
+        <tr><td class="hl">Perturb</td><td>Decentralized network</td><td>Self-improving. Competitive. Scalable. Validator-verified. On-chain certificates.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <span class="icon">—</span>
+    <p>No existing solution provides a competitive, financially incentivized, continuously improving approach to adversarial testing. Perturb is the first.</p>
+  </div>
+</section>
+
+<!-- 03/ Introducing Perturb -->
+<section class="section" id="s3">
+  <div class="section-header">
+    <span class="section-num">03/</span>
+    <h2 class="section-title">Introducing Perturb</h2>
+  </div>
+
+  <h3 class="sub-title" id="s3-1">What Perturb Does</h3>
+  <p>Perturb is a Bittensor subnet that incentivizes a global network of miners to find adversarial examples — images that fool AI classifiers while remaining visually indistinguishable from the original. The network produces two commercially valuable outputs:</p>
+  <div class="card-list">
+    <div class="side-card">
+      <h4 class="sub-sub">Adversarial Training Dataset</h4>
+      <p>A continuously growing, validator-verified dataset of adversarial examples. Sold via subscription to AI teams doing adversarial training — the most effective known defense. Gets better every day as miners improve.</p>
+      <span class="tag">Short-Term Revenue</span>
+    </div>
+    <div class="side-card">
+      <h4 class="sub-sub">Model Robustness Certificates</h4>
+      <p>On-demand adversarial evaluation reports with on-chain cryptographic proof of testing. Essential for EU AI Act compliance and enterprise AI procurement. Sold as a tiered subscription service.</p>
+      <span class="tag">Long-Term Revenue</span>
+    </div>
+  </div>
+
+  <h3 class="sub-title" id="s3-2">Why Bittensor</h3>
+  <div class="card-list">
+    <div class="side-card"><p><strong>Competitive Improvement:</strong> TAO emissions reward the best-performing miners. Applied to adversarial attacks, this creates the first financially incentivized adversarial research network. Miners earn real money for finding better attacks — driving continuous improvement no salaried team can match.</p></div>
+    <div class="side-card"><p><strong>Perfect Verification Symmetry:</strong> Finding an adversarial example is computationally hard. Verifying one is cheap: run the model, compare the prediction, measure the perturbation norm, and check image quality. This asymmetry makes Perturb's incentive mechanism clean, objective, and manipulation-resistant.</p></div>
+    <div class="side-card"><p><strong>Decentralized Trust:</strong> On-chain records of adversarial evaluations create cryptographically verifiable proof of robustness testing — more credible than any centralized company's self-reported certificate, directly relevant to regulatory bodies seeking auditable compliance records.</p></div>
+  </div>
+</section>
+
+<!-- 04/ Technical Architecture -->
+<section class="section" id="s4">
+  <div class="section-header">
+    <span class="section-num">04/</span>
+    <h2 class="section-title">Technical Architecture</h2>
+  </div>
+
+  <h3 class="sub-title" id="s4-1">System Overview</h3>
+  <p>Perturb operates on a challenge-response loop between validators and miners. Validators construct challenges from ImageNet-100, distribute them to selected miners, and score responses using model prediction changes, perturbation minimality, perceptual quality, and configurable speed weighting.</p>
+
+  <!-- ── Pipeline Diagram ─────────────────────────────────────── -->
+  <div class="pipeline-wrap">
+    <svg class="pipeline-svg" viewBox="0 0 700 480" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowV" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <polygon points="0,0 7,3.5 0,7" fill="#0a0a0a" opacity="0.5"/>
+        </marker>
+        <marker id="arrowH" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <polygon points="0,0 7,3.5 0,7" fill="#0a0a0a" opacity="0.5"/>
+        </marker>
+        <marker id="arrowReturn" markerWidth="7" markerHeight="7" refX="3.5" refY="3.5" orient="auto">
+          <polygon points="0,0 7,3.5 0,7" fill="#0a0a0a" opacity="0.3"/>
+        </marker>
+      </defs>
+
+      <!-- Column labels -->
+      <text x="170" y="22" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#0a0a0a" font-weight="700" letter-spacing="3">VALIDATOR</text>
+      <line x1="60" y1="29" x2="280" y2="29" stroke="#0a0a0a" stroke-width="1.5"/>
+
+      <text x="530" y="22" text-anchor="middle" font-family="Space Mono,monospace" font-size="10" fill="#6b6b6b" font-weight="700" letter-spacing="3">MINER</text>
+      <line x1="420" y1="29" x2="640" y2="29" stroke="#6b6b6b" stroke-width="1.5"/>
+
+      <!-- ── Validator boxes ── -->
+
+      <!-- Pull Image -->
+      <rect x="60" y="44" width="220" height="58" rx="3" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+      <text x="170" y="67" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="#0a0a0a" font-weight="700">Sample ImageNet-100</text>
+      <text x="170" y="84" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">persisted random traversal · no repeats</text>
+
+      <!-- arrow down -->
+      <line x1="170" y1="102" x2="170" y2="122" stroke="#0a0a0a" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrowV)" opacity="0.45"/>
+
+      <!-- Verify Challenge -->
+      <rect x="60" y="124" width="220" height="68" rx="3" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+      <text x="170" y="149" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="#0a0a0a" font-weight="700">Verify Challenge</text>
+      <text x="170" y="165" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">EfficientNetV2-L inference</text>
+      <text x="170" y="181" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">true_label = model prediction</text>
+
+      <!-- arrow down -->
+      <line x1="170" y1="192" x2="170" y2="212" stroke="#0a0a0a" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrowV)" opacity="0.45"/>
+
+      <!-- Broadcast Challenge -->
+      <rect x="60" y="214" width="220" height="58" rx="3" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+      <text x="170" y="238" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="#0a0a0a" font-weight="700">Broadcast Challenge</text>
+      <text x="170" y="254" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">select K miners · identical payload</text>
+
+      <!-- arrow right → miner -->
+      <line x1="280" y1="243" x2="418" y2="243" stroke="#0a0a0a" stroke-width="1.2" marker-end="url(#arrowH)" opacity="0.4"/>
+      <text x="349" y="234" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#9b9b9b">challenge</text>
+
+      <!-- Verify Response -->
+      <rect x="60" y="314" width="220" height="58" rx="3" fill="#ffffff" stroke="#0a0a0a" stroke-width="1.5"/>
+      <text x="170" y="338" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="#0a0a0a" font-weight="700">Verify Response</text>
+      <text x="170" y="354" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">prediction change · SSIM · PSNR</text>
+
+      <!-- arrow down -->
+      <line x1="170" y1="372" x2="170" y2="392" stroke="#0a0a0a" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrowV)" opacity="0.45"/>
+
+      <!-- Score Response -->
+      <rect x="60" y="394" width="220" height="44" rx="3" fill="#0a0a0a" stroke="#0a0a0a" stroke-width="1.5"/>
+      <text x="170" y="413" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="#ffffff" font-weight="700">Score · Set Weights</text>
+      <text x="170" y="428" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#9b9b9b">rolling history · top-5 emissions</text>
+
+      <!-- ── Miner box ── -->
+      <rect x="420" y="214" width="220" height="68" rx="3" fill="#fafafa" stroke="#6b6b6b" stroke-width="1.2"/>
+      <text x="530" y="242" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="#3a3a3a" font-weight="700">Generate Attack</text>
+      <text x="530" y="258" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">any algorithm · PGD / FGSM / …</text>
+      <text x="530" y="273" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#6b6b6b">method is proprietary to miner</text>
+
+      <!-- arrow miner → verify response -->
+      <line x1="420" y1="272" x2="300" y2="340" stroke="#0a0a0a" stroke-width="1.2" marker-end="url(#arrowReturn)" opacity="0.35"/>
+      <text x="380" y="302" text-anchor="middle" font-family="DM Mono,monospace" font-size="8" fill="#9b9b9b" transform="rotate(-27,380,302)">perturbed_image</text>
+
+      <!-- Await line val col 3→4 -->
+      <line x1="170" y1="272" x2="170" y2="312" stroke="#0a0a0a" stroke-width="1.2" stroke-dasharray="3,3" marker-end="url(#arrowV)" opacity="0.35"/>
+      <text x="185" y="296" font-family="DM Mono,monospace" font-size="8" fill="#9b9b9b">await</text>
+    </svg>
+  </div>
+
+  <h3 class="sub-title" id="s4-2">Validator: Challenge Pipeline</h3>
+  <p>The validator constructs each challenge from the full ImageNet-100 train split. The dataset is downloaded once from Hugging Face, cached locally, and traversed in a persisted random order with no repeated images until the split is exhausted.</p>
+  <span class="code-label">validator challenge flow</span>
+  <pre><code>1. Sample row from clane9/imagenet-100 train split
+2. Decode image and run EfficientNetV2-L
+3. Normalize the exact model-predicted class label
+4. Build AttackChallenge with true_label = predicted_label
+5. Broadcast challenge to selected miners
+6. Verify perturbed_image_b64 responses validator-side
+7. Update rolling score histories and periodically set weights</code></pre>
+
+  <h3 class="sub-title" id="s4-3">Validator: Deterministic Verification</h3>
+  <p>The current SN26 repository explicitly does not use external image APIs or LLM verification for challenge generation. Validators verify responses by decoding the image, running EfficientNetV2-L locally, checking that the predicted label changes, and enforcing perturbation, SSIM, and PSNR constraints.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Parameter</th><th>Value</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Model</td><td class="mono">EfficientNetV2-L</td><td>Fixed classifier used for challenge labels and response checks</td></tr>
+        <tr><td>Dataset</td><td class="mono">clane9/imagenet-100</td><td>Full train split, cached locally from Hugging Face</td></tr>
+        <tr><td>Verification task</td><td>Prediction change</td><td>Does the perturbed prediction differ from the original model label?</td></tr>
+        <tr><td>Quality gates</td><td>SSIM + PSNR + norm bounds</td><td>Ensure perturbations stay small and visually close to the clean image</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="s4-4">Challenge Format</h3>
+  <p>Payload sent from validator to selected miners:</p>
+  <span class="code-label">challenge payload (JSON)</span>
+  <pre><code>{
+  "task_id":         "string",
+  "model_name":      "EfficientNetV2-L",
+  "clean_image_b64": "base64_encoded_RGB_image",
+  "true_label":      "exact EfficientNet class label",
+  "epsilon":         0.12,
+  "norm_type":       "Linf",
+  "min_delta":       0.002,
+  "timeout_seconds": 60
+}</code></pre>
+
+  <h3 class="sub-title" id="s4-5">Miner: Response</h3>
+  <p>Miners return only the perturbed image. The attack method and parameters are entirely proprietary — the miner's competitive edge. Perturb provides a working default miner implementation so new participants can join immediately. Sophisticated miners replace the default with optimized strategies to compete for higher emission shares.</p>
+  <span class="code-label">miner response (JSON)</span>
+  <pre><code>{ "task_id": "string", "perturbed_image_b64": "base64_encoded_RGB_image" }</code></pre>
+  <div class="callout">
+    <span class="icon">—</span>
+    <p>Miners return only the perturbed image. Attack method is proprietary. The network evaluates results, not methods.</p>
+  </div>
+
+  <h3 class="sub-title" id="s4-6">Scoring: Per-Challenge</h3>
+  <p>Each miner response passes through strict verification gates. Any hard-fail returns <span class="inline-code">0.0</span> immediately:</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Condition</th><th>Threshold</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Invalid image, wrong shape, or out-of-range pixels</td><td>Any violation</td><td class="fail">score = 0.0</td></tr>
+        <tr><td>Perturbation norm below minimum</td><td class="mono">norm &lt; min_linf_delta</td><td class="fail">score = 0.0</td></tr>
+        <tr><td>Perturbation norm above maximum</td><td class="mono">norm &gt; min(ε, max_linf_delta)</td><td class="fail">score = 0.0</td></tr>
+        <tr><td>SSIM or PSNR below configured threshold</td><td class="mono">ssim &lt; min_ssim or psnr_db &lt; min_psnr_db</td><td class="fail">score = 0.0</td></tr>
+        <tr><td>Perturbed prediction still matches true_label</td><td>EfficientNetV2-L inference</td><td class="fail">score = 0.0</td></tr>
+        <tr><td>All checks pass</td><td>—</td><td class="pass">proceed to formula</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Scoring formula for responses that pass all verification gates:</p>
+  <div class="formula-group">
+    <div class="formula">
+      <span class="fl">Perturbation Score — rewards minimally perturbed images</span>
+      linf_score = (1 − linf_ratio)^2; rmse_score = (1 − rmse_ratio)^2
+    </div>
+    <div class="formula">
+      <span class="fl">Speed Score — rewards faster responses</span>
+      speed_score = 1 − min( t<sub>response</sub> / t<sub>timeout</sub> , 1 )
+    </div>
+    <div class="formula">
+      <span class="fl">Per-Challenge Score</span>
+      score = PERTURB_PERTURBATION_WEIGHT × perturbation_score + PERTURB_SPEED_WEIGHT × speed_score
+    </div>
+  </div>
+  <span class="code-label">scoring implementation</span>
+  <pre><code>linf_ratio = clamp((norm - min_linf_delta) / (min(epsilon, max_linf_delta) - min_linf_delta), 0, 1)
+rmse_ratio = clamp(rmse / min(epsilon, max_linf_delta), 0, 1)
+linf_score = (1 - linf_ratio) ** 2
+rmse_score = (1 - rmse_ratio) ** 2
+perturbation_score = weighted_avg(linf_score, rmse_score)
+speed_score = 1.0 - min(response_time / timeout, 1.0)
+score = PERTURBATION_WEIGHT * perturbation_score + SPEED_WEIGHT * speed_score</code></pre>
+
+  <h3 class="sub-title" id="s4-7">Scoring: On-Chain Weight Setting</h3>
+  <p>On-chain weights are set from each eligible miner's rolling average score. Only miners with <span class="inline-code">processed_count &gt;= PERTURB_MIN_PROCESSED_COUNT</span> and a full score history are eligible. The current repo default is <span class="inline-code">PERTURB_MIN_PROCESSED_COUNT=50</span> and a fixed top-5 emission schedule.</p>
+
+  <div class="formula-group">
+    <div class="formula">
+      <span class="fl">Fixed emission — Top 5</span>
+      emission(1) = 70% &nbsp;&nbsp; emission(2) = 25% &nbsp;&nbsp; emission(3) = 3% &nbsp;&nbsp; emission(4) = 1.5% &nbsp;&nbsp; emission(5) = 0.5%
+    </div>
+    <div class="formula">
+      <span class="fl">Ranks 6 and above</span>
+      emission(k) = 0 for k >= 6
+    </div>
+    <div class="formula">
+      <span class="fl">Eligibility</span>
+      processed_count >= min_processed_count and len(history) >= history_size
+    </div>
+  </div>
+
+  <span class="code-label">_set_weights</span>
+  <pre><code>eligible = [uid for uid in miners if processed_count[uid] >= min_processed_count]
+N = len(eligible)
+
+avg_score = {uid: mean(last_history_size_scores[uid]) for uid in eligible}
+ranked = sort_by_avg_score_desc(eligible)
+
+# Fixed top-5 schedule; ranks 6+ receive zero
+shares = [0.70, 0.25, 0.03, 0.015, 0.005]
+for rank, share in enumerate(shares):
+    emission[ranked[rank]] = share
+
+weights = normalize_positive_top5_emissions(emission)</code></pre>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Rank</th><th>Emission Share</th><th>Formula</th></tr></thead>
+      <tbody>
+        <tr class="rank-1"><td>1st</td><td>70%</td><td>Fixed top-5 schedule</td></tr>
+        <tr class="rank-2"><td>2nd</td><td>25%</td><td>Fixed</td></tr>
+        <tr class="rank-3"><td>3rd</td><td>3%</td><td>Fixed</td></tr>
+        <tr><td>4th</td><td>1.5%</td><td>Fixed</td></tr>
+        <tr><td>5th</td><td>0.5%</td><td>Fixed</td></tr>
+        <tr><td>6th+</td><td>0%</td><td>Ranks outside the top five receive no emission share in the current repo</td></tr>
+        <tr><td style="color:var(--ink4)">Ineligible</td><td style="color:var(--ink4)">0%</td><td style="color:var(--ink4)">processed_count below threshold or incomplete history</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="s4-8">Current Model: EfficientNetV2-L</h3>
+  <p>The current SN26 repository uses EfficientNetV2-L as the fixed classifier. Validators load the torchvision EfficientNet_V2_L ImageNet weights and use the exact model-predicted class label as <span class="inline-code">true_label</span>.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Model</td><td class="hl">EfficientNetV2-L</td></tr>
+        <tr><td>torchvision weights</td><td class="mono">EfficientNet_V2_L_Weights.IMAGENET1K_V1</td></tr>
+        <tr><td>Repository constant</td><td class="mono">MODEL_NAME = "EfficientNetV2-L"</td></tr>
+        <tr><td>Challenge source</td><td class="mono">clane9/imagenet-100 train split</td></tr>
+        <tr><td>Default image size</td><td class="mono">64</td></tr>
+        <tr><td>Default timeout</td><td class="mono">20 seconds</td></tr>
+        <tr><td>Default sampled miners</td><td class="mono">150</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The baseline miner implements a simple untargeted PGD-style attack. Competitive miners are expected to improve attack logic while preserving the protocol contract: return only <span class="inline-code">perturbed_image_b64</span>.</p>
+
+  <h3 class="sub-title" id="s4-9">Current Repo Scope</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Phase</th><th>Models Added</th><th>New Capabilities</th></tr></thead>
+      <tbody>
+        <tr><td class="hl">Current repo</td><td class="mono">EfficientNetV2-L</td><td>Image classification, Linf norm, ImageNet-100 challenge source, deterministic validator scoring</td></tr>
+        <tr><td class="hl">Validator setup</td><td class="mono">scripts/setup_common.sh validator</td><td>Installs dependencies and bootstraps the ImageNet-100 cache</td></tr>
+        <tr><td class="hl">Miner setup</td><td class="mono">scripts/setup_common.sh miner</td><td>Installs dependencies and starts a baseline PGD-style miner</td></tr>
+        <tr><td class="hl">Smoke test</td><td class="mono">scripts/integration_smoke_test.py</td><td>Validates local ImageNet-100 load, EfficientNetV2-L inference, and challenge label selection</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 05/ Revenue Model -->
+<section class="section" id="s5">
+  <div class="section-header">
+    <span class="section-num">05/</span>
+    <h2 class="section-title">Revenue Model</h2>
+  </div>
+
+  <h3 class="sub-title" id="s5-1">Adversarial Training Dataset — Short-Term Revenue</h3>
+  <p>Adversarial training — retraining models on adversarial examples — is the most effective known defense against adversarial attacks. Perturb generates this data continuously as a byproduct of its core operation, creating a dataset that improves every single day. Each entry can include: original image, adversarial image, model name, true label, constraint parameters, perturbation norm, SSIM, PSNR, attack score, and timestamp.</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tier</th><th>Volume</th><th>Frequency</th><th>Target Customer</th></tr></thead>
+      <tbody>
+        <tr><td class="hl">Research</td><td>100K examples/month</td><td>Weekly</td><td>Academic labs, AI safety organizations</td></tr>
+        <tr><td class="hl">Professional</td><td>1M examples/month</td><td>Daily</td><td>AI startups, ML engineering teams</td></tr>
+        <tr><td class="hl">Enterprise</td><td>Unlimited</td><td>Real-time</td><td>Large enterprises, frontier AI labs</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-title" id="s5-2">Model Robustness Testing Service — Long-Term Revenue</h3>
+  <p>Organizations submit a model for evaluation and receive a comprehensive robustness report generated by directing the full miner network at the target model. Each report includes:</p>
+  <div class="card-list">
+    <div class="side-card"><p>Overall robustness score (0.0–1.0) benchmarked against industry standards</p></div>
+    <div class="side-card"><p>Attack success rate across epsilon budgets and image categories</p></div>
+    <div class="side-card"><p>Worst-case adversarial examples, visualized and downloadable</p></div>
+    <div class="side-card"><p>Validator-verified failure analysis — model prediction change plus perturbation and image-quality statistics</p></div>
+    <div class="side-card"><p>On-chain cryptographic certificate of evaluation — immutable and auditable</p></div>
+    <div class="side-card"><p>Comparison against published AutoAttack benchmarks for the same architecture</p></div>
+  </div>
+  <div class="table-wrap" style="margin-top:1rem">
+    <table>
+      <thead><tr><th>Tier</th><th>Models</th><th>Evaluation Depth</th><th>Frequency</th></tr></thead>
+      <tbody>
+        <tr><td class="hl">Starter</td><td>1 model</td><td>Standard suite</td><td>Monthly</td></tr>
+        <tr><td class="hl">Growth</td><td>5 models</td><td>Extended suite</td><td>Weekly</td></tr>
+        <tr><td class="hl">Enterprise</td><td>Unlimited</td><td>Full suite + custom scope</td><td>Continuous</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 06/ Go-To-Market -->
+<section class="section" id="s6">
+  <div class="section-header">
+    <span class="section-num">06/</span>
+    <h2 class="section-title">Go-To-Market Strategy</h2>
+  </div>
+
+  <h3 class="sub-title" id="s6-1">Target Customers</h3>
+  <div class="card-list">
+    <div class="side-card">
+      <h4 class="sub-sub">AI Startups Selling to Enterprise</h4>
+      <p>Enterprise procurement teams now require adversarial robustness certifications before purchase. A Perturb certificate can unblock deals worth orders of magnitude more than the subscription cost.</p>
+    </div>
+    <div class="side-card">
+      <h4 class="sub-sub">Regulated Industry Deployments</h4>
+      <p>EU AI Act compliance requires conformity assessments for high-risk AI systems. Perturb provides on-chain proof of robustness testing — immutable, auditable, and defensible to regulators.</p>
+    </div>
+    <div class="side-card">
+      <h4 class="sub-sub">AI Research Labs</h4>
+      <p>Standardized, reproducible, validator-verified robustness benchmarks citable in academic publications. The public leaderboard becomes a recognized reference benchmark in the adversarial ML research community.</p>
+    </div>
+    <div class="side-card">
+      <h4 class="sub-sub">AI Safety Organizations</h4>
+      <p>Organizations working on AI safety need large, diverse, high-quality adversarial example datasets for research into robustness and defenses. The dataset subscription provides this at a fraction of the cost of generating equivalent data in-house.</p>
+    </div>
+  </div>
+
+  <h3 class="sub-title" id="s6-2">Phased Launch Plan</h3>
+  <div class="tl">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-phase">Months 1–3</div>
+        <div class="tl-title">Phase 1 — Build Credibility</div>
+        <div class="tl-desc">Launch the public robustness leaderboard at perturbai.io. Attack every major open-source model on HuggingFace and publish verified scores. Become the definitive reference for adversarial robustness benchmarks.</div>
+        <span class="tl-target">Target: 30+ models · 3+ academic citations · 1,000+ visitors/month</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-phase">Months 3–6</div>
+        <div class="tl-title">Phase 2 — Monetize Research Community</div>
+        <div class="tl-desc">Launch dataset subscription. Use the public leaderboard as the primary conversion funnel. Partner with AI safety organizations as anchor customers.</div>
+        <span class="tl-target">Target: 50+ Research tier subscribers · $15,000 MRR</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-phase">Months 6–12</div>
+        <div class="tl-title">Phase 3 — Enterprise Compliance</div>
+        <div class="tl-desc">Launch model robustness testing subscription targeting EU AI Act compliance. Position as the only blockchain-verifiable robustness certificate. Partner with AI governance consultancies.</div>
+        <span class="tl-target">Target: 10+ enterprise subscribers · $80,000 MRR</span>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-phase">Year 2</div>
+        <div class="tl-title">Phase 4 — Scale and Expand</div>
+        <div class="tl-desc">Expand beyond the current EfficientNetV2-L image-classification implementation. Open bug bounty marketplace where companies post TAO-denominated bounties for finding vulnerabilities in their models.</div>
+        <span class="tl-target">Target: $500,000+ ARR</span>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub-title" id="s6-3">Competitive Moat</h3>
+  <div class="card-list">
+    <div class="side-card"><p><strong>Self-Improving Attack Quality:</strong> Every day miners compete, the network gets better. The dataset becomes more valuable. The certificates become more credible. No centralized service has this compounding property.</p></div>
+    <div class="side-card"><p><strong>Validator-Verified Precision:</strong> Unlike systems that trust miner-reported outputs, Perturb verifies every response validator-side using model inference, perturbation bounds, SSIM, and PSNR — producing higher-quality data and more credible certificates.</p></div>
+    <div class="side-card"><p><strong>On-Chain Immutability:</strong> Robustness certificates on Bittensor cannot be altered, backdated, or selectively disclosed — categorically different from any vendor's self-reported compliance documentation.</p></div>
+    <div class="side-card"><p><strong>Architecture Diversity:</strong> As Perturb adds target models, miners who specialize build irreplaceable expertise. A miner optimizing attacks for six months outperforms any general-purpose tool.</p></div>
+  </div>
+</section>
+
+<!-- 07/ Market Analysis -->
+<section class="section" id="s7">
+  <div class="section-header">
+    <span class="section-num">07/</span>
+    <h2 class="section-title">Market Analysis</h2>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>Value</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>AI Red Teaming Market (2024)</td><td class="hl">$1.43 billion</td><td>Industry research, 2024</td></tr>
+        <tr><td>AI Red Teaming Market (2033)</td><td class="hl">$11.61 billion</td><td>Projected at 26.1% CAGR</td></tr>
+        <tr><td>CAGR (2025–2033)</td><td class="hl">26.1%</td><td>Driven by regulatory mandates</td></tr>
+        <tr><td>EU AI Act max fine</td><td class="hl">€30M or 6% revenue</td><td>Non-compliance penalty</td></tr>
+        <tr><td>Fastest growing segment</td><td>Adversarial attack simulation</td><td>Perturb's exact category</td></tr>
+        <tr><td>Key verticals</td><td>Healthcare, BFSI, Government, Automotive</td><td>Primary enterprise targets</td></tr>
+        <tr><td>Bittensor active subnets</td><td>128 (expanding to 256)</td><td>As of April 2026</td></tr>
+        <tr><td>Competing subnets in this space</td><td class="hl">0</td><td>No existing subnet covers adversarial ML</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout">
+    <span class="icon">—</span>
+    <p>Perturb enters a $1.43B market growing at 26.1% annually, with zero competing Bittensor subnets in this category and increasing regulatory tailwinds globally.</p>
+  </div>
+</section>
+
+<!-- 08/ Conclusion -->
+<section class="section" id="s8">
+  <div class="section-header">
+    <span class="section-num">08/</span>
+    <h2 class="section-title">Conclusion</h2>
+  </div>
+  <p>AI models are increasingly embedded in decisions that affect human safety, financial stability, and personal rights. Yet the vast majority of these models are deployed without systematic adversarial robustness testing — not because organizations don't care, but because the tooling to do so at scale simply doesn't exist.</p>
+  <p>Perturb changes this. By applying Bittensor's competitive incentive mechanism to adversarial example generation — and using validator-side model inference plus image-quality checks to ensure quality — Perturb creates a network that gets measurably better every day. Miners are financially motivated to become the world's best adversarial attack researchers. Validators verify results with mathematical precision. The network produces two commercially valuable outputs that address a real, growing, regulatory-driven market.</p>
+  <p>The validation mechanism is objective and cheap relative to attack generation. The market is large and accelerating. The Bittensor architecture provides an advantage centralized competitors cannot easily replicate. With deterministic validator scoring as a differentiator, Perturb produces high-quality adversarial data for robustness testing and training.</p>
+  <div class="callout" style="margin-top:2rem">
+    <span class="icon">—</span>
+    <p>For technical documentation, validator setup, and miner onboarding, visit perturbai.io or the official GitHub repository.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">Perturb</div>
+  <div class="fd">perturbai.io · Built on Bittensor · April 2026</div>
+  <div class="disc">This whitepaper is for informational purposes only and does not constitute financial or investment advice. All figures are projections based on available market data.</div>
+</footer>
+
+</div>
+</main>
+</div>
+
+<script>
+const sections = document.querySelectorAll('section[id]');
+const links    = document.querySelectorAll('nav.sidebar a[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting)
+      links.forEach(a => a.classList.toggle('active', a.getAttribute('href')==='#'+e.target.id));
+  });
+},{rootMargin:'-15% 0px -75% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
